@@ -1,0 +1,80 @@
+INSTANCIA 1
+mongod --dbpath "C:\Program Files\MongoDB\Server\5.0\data" --logpath "C:\Program Files\MongoDB\Server\5.0\log\mongod.log" --port 27017 --storageEngine=wiredTiger --journal --replSet testrep
+mongo --port 27017
+rs.initiate(rsconf)
+
+INSTANCIA 2
+mongod --dbpath "c:\MongoLab01\db" --logpath  "c:\MongoLab01\log\mongod.log" --port 27020 --storageEngine=wiredTiger --journal --replSet testrep
+mongo --port 27020
+
+INSTANCIA 3
+mongod --dbpath "c:\MongoLab02\db" --logpath  "c:\MongoLab02\log\mongod.log" --port 27030 --storageEngine=wiredTiger --journal --replSet testrep
+mongo --port 27030
+
+
+INSERTS
+--PORT 27017
+Use replicaLaboratorio
+db
+db.instancias.insert({"nombre" : "Insert_Instancia_27017"});
+db.instancias.find()
+
+EDITAR
+var variableprueba = db.instancias.findOne({"nombre" : "Insert_Instancia_27017" })
+variableprueba 
+variableprueba.nombre = "Insert_MODIFICADO"
+variableprueba
+db.instancias.save(variableprueba)
+db.instancias.find()
+
+DELETES
+db.instancias.remove({"nombre" : "Insert_MODIFICADO"})
+db.instancias.find()
+
+
+
+      
+	mkdir  c:\MongoLab01\config  c:\MongoLab01\db  c:\MongoLab01\log
+	mkdir c:\MongoLab02\config  c:\MongoLab02\db  c:\MongoLab02\log
+
+	cmd > cd c:\MongoLab01\log\notepad  c:\MongoLab01\config\mongod.cnf 
+		dbpath=c:\MongoLab01\db
+		log=c:\MongoLab01\log\mongo
+		port=27020
+
+	cmd > cd c:\MongoLab02\log\notepad  c:\MongoLab02\config\mongod.cnf 
+		dbpath=c:\MongoLab02\db
+		log=c:\MongoLab02\log\mongo
+		port=27030
+
+----PARAMOS EL MONGO EN SERVICIOS
+
+----INICIAMOS EL SERVIDOR DE LA INSTANCIA 1
+         
+syntax
+ mongos --dbpath "" --logpath "" --port  --storageEngine=wiredTiger --journal --replSet nameofthereplica
+
+
+ mongod --dbpath  "C:\Program Files\MongoDB\Server\5.0\data" --logpath "C:\Program Files\MongoDB\Server\5.0\log\mongod.log" --port 27017 --storageEngine=wiredTiger --journal --replSet  testreplicaset
+ mongo --port 27017
+  show dbs;
+ rsconf={_id:"prodrep", members:[{_id:0,host:"localhost:27017"}]}
+
+    > rs.initiate(rsconf)
+   press enter again and primary will be prompted .
+   >show dbs;
+
+	primary > rs.add("localhost:27020");
+	>rs.status();
+	>rs.add("localhost:27030")
+	>rs.status();
+
+mongo --port 27020
+secondary > show dbs;
+ >rs.slaveOk()
+
+
+mongo --port 27030
+ secondary > show dbs;
+  >rs.slaveOk()
+
